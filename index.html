@@ -9,8 +9,20 @@
 <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-<header class="top"><div class="bar"><div class="brand">Maker <span>Projects</span></div><div class="search"><input id="q" type="search" placeholder="Buscar proyecto, ESP32, LoRa, robot…" autocomplete="off"></div><button id="favOnly" class="iconbtn" title="Solo favoritos">★</button><button id="toggleFilters" class="iconbtn" title="Filtros">☰</button></div></header>
-<section class="hero"><h1>Directorio Maker</h1><p>Proyectos open-source seleccionados para construir de verdad: ESP32, Raspberry Pi, impresión 3D, robots, arte cinético, vuelo, agua, herramientas, displays y más.</p><div class="stats"><span class="stat" id="totalStat"></span><span class="stat" id="shownStat"></span><span class="stat">★ favoritos guardados en este dispositivo</span></div></section>
+<header class="top"><div class="bar">
+<div class="brand">Maker <span>Projects</span></div>
+<div class="search"><input id="q" type="search" placeholder="Buscar proyecto, ESP32, LoRa, robot…" autocomplete="off"></div>
+<button id="quickBtn" class="quickbtn" title="Lista rápida">☷ <span>Lista rápida</span></button>
+<button id="favOnly" class="iconbtn" title="Solo favoritos">★</button>
+<button id="toggleFilters" class="iconbtn" title="Filtros">☰</button>
+</div></header>
+
+<section class="hero">
+<h1>Directorio Maker</h1>
+<p>Proyectos open-source seleccionados para construir de verdad: ESP32, Raspberry Pi, impresión 3D, robots, arte cinético, vuelo, agua, herramientas, displays y más.</p>
+<div class="stats"><span class="stat" id="totalStat"></span><span class="stat" id="shownStat"></span><span class="stat">★ favoritos guardados en este dispositivo</span></div>
+</section>
+
 <section id="filters" class="filters">
 <div><select id="cat"><option value="">Todas las categorías</option></select></div>
 <div><select id="platform"><option value="">Todas las plataformas</option></select></div>
@@ -18,10 +30,39 @@
 <div><select id="print"><option value="">Cualquier 3D/CAD</option><option value="yes">Con 3D/CAD</option></select></div>
 <div><select id="status"><option value="">Cualquier estado</option><option>Muy reproducible</option><option>Reproducible</option><option>Experimental</option></select></div>
 </section>
+
 <div class="chips" id="chips"></div>
 <main class="main"><div id="grid" class="grid"></div><div id="empty" class="empty">No hay proyectos con esos filtros.</div></main>
 <button class="fab" id="topBtn" type="button">↑ Arriba</button>
-<div class="overlay" id="overlay" role="dialog" aria-modal="true"><article class="modal"><div class="modalhero"><img id="mImg" alt=""><button class="close" id="closeModal" aria-label="Cerrar">×</button></div><div class="modalbody"><h2 id="mTitle"></h2><p id="mDesc"></p><div class="modalgrid"><div class="info"><small>Plataforma</small><strong id="mPlatform"></strong></div><div class="info"><small>Impresión/CAD</small><strong id="mPrint"></strong></div><div class="info"><small>Documentación</small><strong id="mDocs"></strong></div><div class="info"><small>Estado</small><strong id="mStatus"></strong></div></div><div class="modalactions"><a id="mProject" target="_blank" rel="noopener">Proyecto / documentación</a><a id="mVideo" target="_blank" rel="noopener">YouTube ▶</a></div></div></article></div>
+
+<div class="overlay" id="overlay" role="dialog" aria-modal="true" aria-label="Ficha del proyecto">
+<article class="modal">
+<div class="modalhero"><img id="mImg" alt=""><button class="close" id="closeModal" aria-label="Cerrar">×</button></div>
+<div class="modalbody">
+<h2 id="mTitle"></h2>
+<p class="modallead" id="mDesc"></p>
+<div class="modalgrid">
+<div class="info"><small>Plataforma</small><strong id="mPlatform"></strong></div>
+<div class="info"><small>Impresión/CAD</small><strong id="mPrint"></strong></div>
+<div class="info"><small>Documentación</small><strong id="mDocs"></strong></div>
+<div class="info"><small>Estado</small><strong id="mStatus"></strong></div>
+</div>
+<div class="modalactions"><a id="mProject" target="_blank" rel="noopener">Proyecto / documentación</a><a id="mVideo" target="_blank" rel="noopener">YouTube ▶</a></div>
+</div>
+</article>
+</div>
+
+<div class="overlay" id="quickOverlay" role="dialog" aria-modal="true" aria-label="Lista rápida de proyectos">
+<section class="quickmodal">
+<div class="quickhead">
+<div><h2>Lista rápida</h2><p id="quickCount"></p></div>
+<button class="quickclose" id="closeQuick" aria-label="Cerrar lista rápida">×</button>
+</div>
+<div class="quickhint">Nombre + descripción de una frase. Toca cualquier proyecto para abrir su ficha con foto y descripción ampliada.</div>
+<div id="quickList" class="quicklist"></div>
+</section>
+</div>
+
 <script src="projects-1.js"></script>
 <script src="projects-2.js"></script>
 <script src="projects-3.js"></script>

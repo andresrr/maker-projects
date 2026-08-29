@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Directorio Maker — ESP32 · Raspberry Pi · 3D</title>
+<style>
+:root{--bg:#0b1020;--panel:#111827;--panel2:#172033;--text:#eef2ff;--muted:#9ca3af;--accent:#7dd3fc;--border:#263349;--good:#86efac;--warn:#fde68a;--exp:#fca5a5}
+*{box-sizing:border-box} body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:linear-gradient(180deg,#080d18,#0b1020 30%,#0a0f1b);color:var(--tex[...]
+header{position:sticky;top:0;z-index:5;background:rgba(8,13,24,.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--border)}
+.headerbar{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}.headertext{min-width:0}.toggleFilters{flex:0 0 auto;border:1px solid #334155;background:#182236;color:#e5e7eb;bor[...]
+.wrap{max-width:1500px;margin:auto;padding:20px} h1{margin:0;font-size:clamp(24px,4vw,42px)} .subtitle{color:var(--muted);margin-top:8px;line-height:1.5}
+.stats{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px} .pill{border:1px solid var(--border);padding:7px 10px;border-radius:999px;color:#cbd5e1;background:#101827}
+.controls{display:grid;grid-template-columns:minmax(220px,2fr) repeat(3,minmax(150px,1fr));gap:10px;margin-top:16px} input,select{width:100%;background:#101827;color:var(--text);border:1px solid #3341[...]
+main{max-width:1500px;margin:auto;padding:18px 20px 50px} .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:16px}
+.card{display:flex;flex-direction:column;overflow:hidden;background:rgba(17,24,39,.95);border:1px solid var(--border);border-radius:16px;min-height:100%;transition:.15s transform,.15s border-color} .c[...]
+.thumb{aspect-ratio:16/9;background:#0f172a;overflow:hidden;border-bottom:1px solid var(--border)} .thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.content{padding:15px;display:flex;flex-direction:column;gap:10px;flex:1} .topline{display:flex;justify-content:space-between;gap:8px;align-items:flex-start} h2{font-size:19px;margin:0;line-height:1.2[...]
+.desc{color:#cbd5e1;line-height:1.45;font-size:14px;min-height:60px} .meta{display:flex;flex-wrap:wrap;gap:6px} .tag{font-size:12px;background:#0b1220;border:1px solid #263349;color:#bac6d7;padding:4p[...]
+.rating{color:#facc15;letter-spacing:1px} .status{font-size:12px;font-weight:650} .s-good{color:var(--good)} .s-mid{color:var(--warn)} .s-exp{color:var(--exp)}
+.actions{display:flex;gap:8px;margin-top:auto;padding-top:4px} .btn{flex:1;text-align:center;text-decoration:none;color:#e5e7eb;background:#182236;border:1px solid #334155;padding:9px 10px;border-radi[...]
+.empty{display:none;text-align:center;padding:60px 10px;color:var(--muted)} footer{max-width:1500px;margin:auto;padding:0 20px 30px;color:#64748b;font-size:13px;line-height:1.5}
+@media(max-width:850px){.controls{grid-template-columns:1fr 1fr}} @media(max-width:520px){.controls{grid-template-columns:1fr} .wrap,main{padding-left:12px;padding-right:12px}.headerbar{align-items:ce[...]
+</style>
+</head>
+<body>
+<header id="siteHeader"><div class="wrap">
+<div class="headerFull">
+<div class="headerbar"><div class="headertext"><h1>Directorio Maker: ESP32 · Raspberry Pi · impresión 3D</h1></div><button id="toggleFilters" class="toggleFilters" type="button" aria-expanded="true[...]
+<div class="subtitle">Proyectos open-source para construir de verdad: robots expresivos, arte cinético, instrumentos, displays mecánicos, plotters, herramientas y gadgets. Las estrellas indican cali[...]
+<div class="stats"><span class="pill" id="count"></span><span class="pill">🖨️ CAD/STL cuando está disponible</span><span class="pill">🎥 YouTube directo o búsqueda rápida</span><span class="[...]
+<div class="controls">
+<input id="q" placeholder="Buscar: robot, arena, LoRa, OLED, plotter…"/>
+<select id="cat"><option value="">Todas las categorías</option></select>
+<select id="docs"><option value="0">Cualquier documentación</option><option value="5">Doc 5/5</option><option value="4">Doc ≥ 4/5</option><option value="3">Doc ≥ 3/5</option></select>
+<select id="status"><option value="">Cualquier estado</option><option>Muy reproducible</option><option>Reproducible</option><option>Experimental</option></select>
+</div></div>
+<div class="collapsedSummary"><span class="miniTitle">Directorio Maker</span><span class="miniCount" id="miniCount"></span><button id="showFilters" class="toggleFilters" type="button">Mostrar filtros [...]
+</div></header>
+<main><div id="grid" class="grid"></div><div id="empty" class="empty">No hay proyectos con esos filtros.</div></main>
+<footer>Notas: las imágenes de repositorios usan la vista social de GitHub cuando está disponible. Algunos botones de YouTube son búsquedas porque no hay un vídeo oficial único o claramente ident[...]
+<script>
+const projects=[{"name": "Sesame Robot", "category": "Robots", "platform": "ESP32", "description": "Mini cuadrúpedo expresivo con OLED, 8 servos, CAD/STL, wiring y firmware.", "url": "https://github.[...]
+const $=s=>document.querySelector(s); const grid=$('#grid');
+for(const c of categories){const o=document.createElement('option');o.textContent=c;o.value=c;$('#cat').appendChild(o)}
+function cls(status){return status==='Muy reproducible'?'s-good':status==='Experimental'?'s-exp':'s-mid'}
+function stars(n){return '★'.repeat(n)+'☆'.repeat(5-n)}
+function render(){
+ const q=$('#q').value.trim().toLowerCase(), cat=$('#cat').value, docs=+$('#docs').value, status=$('#status').value;
+ const filtered=projects.filter(p=>(!q||[p.name,p.category,p.platform,p.description].join(' ').toLowerCase().includes(q))&&(!cat||p.category===cat)&&p.docs>=docs&&(!status||p.status===status));
+ $('#count').textContent=filtered.length+' / '+projects.length+' proyectos'; $('#miniCount').textContent=filtered.length+' / '+projects.length; grid.innerHTML=''; $('#empty').style.display=filtered.le[...]
+ for(const p of filtered){const card=document.createElement('article'); card.className='card';
+ card.innerHTML=`<div class="thumb"><img loading="lazy" src="${p.image}" alt="Imagen representativa de ${p.name}" onerror="this.style.opacity=.15"></div><div class="content"><div class="topline"><h2>$[...]
+}
+for(const id of ['q','cat','docs','status']) $('#'+id).addEventListener(id==='q'?'input':'change',render);
+const siteHeader=$('#siteHeader'), toggleFilters=$('#toggleFilters'), showFilters=$('#showFilters');
+function setHeaderCollapsed(collapsed){siteHeader.classList.toggle('is-collapsed',collapsed);toggleFilters.setAttribute('aria-expanded',String(!collapsed));try{localStorage.setItem('makerHeaderCollaps[...]
+toggleFilters.addEventListener('click',()=>setHeaderCollapsed(true));
+showFilters.addEventListener('click',()=>setHeaderCollapsed(false));
+let initialCollapsed=false; try{initialCollapsed=localStorage.getItem('makerHeaderCollapsed')==='1'}catch(e){}
+if(window.matchMedia('(max-width: 520px)').matches && !localStorage.getItem('makerHeaderCollapsed')) initialCollapsed=true;
+setHeaderCollapsed(initialCollapsed); render();
+</script>
+</body></html>

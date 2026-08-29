@@ -1,0 +1,24 @@
+const projects=window.projects;
+const $=s=>document.querySelector(s); const grid=$('#grid');
+const categories=[...new Set(projects.map(p=>p.category))].sort((a,b)=>a.localeCompare(b));
+const platforms=[...new Set(projects.map(p=>p.platform))].sort((a,b)=>a.localeCompare(b));
+for(const c of categories) $('#cat').insertAdjacentHTML('beforeend',`<option>${c}</option>`);
+for(const p of platforms) $('#platform').insertAdjacentHTML('beforeend',`<option>${p}</option>`);
+const featured=['Robots','Animatronics','Kinetic Art','Vuelo','Agua','Control','Gadgets','Displays','Plotters'];
+$('#chips').innerHTML=['Todos',...featured.filter(x=>categories.includes(x))].map((x,i)=>`<button class="chip ${i===0?'active':''}" data-cat="${i===0?'':x}">${x}</button>`).join('');
+let favOnly=false; let favorites=new Set(); try{favorites=new Set(JSON.parse(localStorage.getItem('makerFavs')||'[]'))}catch(e){}
+function saveFavs(){try{localStorage.setItem('makerFavs',JSON.stringify([...favorites]))}catch(e){}}
+function stars(n){return '★'.repeat(n)+'☆'.repeat(5-n)} function cls(s){return s==='Muy reproducible'?'good':s==='Experimental'?'exp':'mid'}
+function isPrintable(p){return !['No','No claro','N/A'].includes((p.printable||'').trim())}
+function filtered(){const q=$('#q').value.trim().toLowerCase(),cat=$('#cat').value,plat=$('#platform').value,docs=+$('#docs').value,status=$('#status').value,pr=$('#print').value;return projects.filter(p=>(!q||[p.name,p.category,p.platform,p.description,p.printable].join(' ').toLowerCase().includes(q))&&(!cat||p.category===cat)&&(!plat||p.platform===plat)&&p.docs>=docs&&(!status||p.status===status)&&(!pr||isPrintable(p))&&(!favOnly||favorites.has(p.name)))}
+function render(){const arr=filtered(); $('#totalStat').textContent=projects.length+' proyectos'; $('#shownStat').textContent=arr.length+' visibles'; $('#empty').style.display=arr.length?'none':'block'; grid.innerHTML=arr.map((p,i)=>`<article class="card"><div class="thumb"><img loading="lazy" src="${p.image}" alt="${p.name.replaceAll('"','')}" onerror="this.style.opacity=.15"><button class="fav ${favorites.has(p.name)?'on':''}" data-fav="${p.name.replaceAll('"','&quot;')}" title="Favorito">★</button></div><div class="body"><div class="titleline"><h2>${p.name}</h2><span class="cat">${p.category}</span></div><div class="desc"><strong>Descripción:</strong> ${p.description}</div><div class="tags"><span class="tag">${p.platform}</span><span class="tag">🖨️ ${p.printable}</span><span class="tag">${p.category}</span></div><div><span class="rating">${stars(p.docs)}</span> <span class="status ${cls(p.status)}">${p.status}</span></div><div class="actions"><button class="more" data-open="${projects.indexOf(p)}">Ver ficha</button><a class="btn" href="${p.url}" target="_blank" rel="noopener">Proyecto</a><a class="btn yt" href="${p.video}" target="_blank" rel="noopener">YouTube ▶</a></div></div></article>`).join('');
+ document.querySelectorAll('[data-fav]').forEach(b=>b.addEventListener('click',e=>{e.stopPropagation();const n=b.dataset.fav;favorites.has(n)?favorites.delete(n):favorites.add(n);saveFavs();render()}));
+ document.querySelectorAll('[data-open]').forEach(b=>b.addEventListener('click',()=>openModal(projects[+b.dataset.open])));
+}
+function openModal(p){$('#mImg').src=p.image;$('#mImg').alt=p.name;$('#mTitle').textContent=p.name;$('#mDesc').textContent=p.description;$('#mPlatform').textContent=p.platform;$('#mPrint').textContent=p.printable;$('#mDocs').textContent=stars(p.docs);$('#mStatus').textContent=p.status;$('#mProject').href=p.url;$('#mVideo').href=p.video;$('#overlay').classList.add('open');document.body.style.overflow='hidden'}
+function closeModal(){$('#overlay').classList.remove('open');document.body.style.overflow=''}
+['q','cat','platform','docs','print','status'].forEach(id=>$('#'+id).addEventListener(id==='q'?'input':'change',()=>{if(id==='cat')document.querySelectorAll('.chip').forEach(c=>c.classList.toggle('active',c.dataset.cat===$('#cat').value));render()}));
+document.querySelectorAll('.chip').forEach(c=>c.addEventListener('click',()=>{$('#cat').value=c.dataset.cat;document.querySelectorAll('.chip').forEach(x=>x.classList.toggle('active',x===c));render()}));
+$('#favOnly').addEventListener('click',()=>{favOnly=!favOnly;$('#favOnly').style.color=favOnly?'#ffd45c':'';render()});$('#toggleFilters').addEventListener('click',()=>$('#filters').classList.toggle('collapsed'));$('#topBtn').addEventListener('click',()=>scrollTo({top:0,behavior:'smooth'}));$('#closeModal').addEventListener('click',closeModal);$('#overlay').addEventListener('click',e=>{if(e.target===$('#overlay'))closeModal()});addEventListener('keydown',e=>{if(e.key==='Escape')closeModal()});
+if(matchMedia('(max-width:850px)').matches) $('#filters').classList.add('collapsed');render();
+if('serviceWorker' in navigator) navigator.serviceWorker.register('./service-worker.js').catch(()=>{});

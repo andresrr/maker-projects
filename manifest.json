@@ -1,0 +1,9 @@
+{
+  "name": "Maker Projects",
+  "short_name": "Maker Projects",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#070b12",
+  "theme_color": "#0a0f1b",
+  "description": "Directorio de proyectos maker open-source ESP32, Raspberry Pi y 3D"
+}
